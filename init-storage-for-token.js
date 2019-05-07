@@ -12,41 +12,49 @@ function saveToLocalstorage(responseJSON) {
     localStorage["refresh-token"] = refresh_token;
     localStorage["user-info"] = JSON.stringify(userInfo);
 
-
     localStorage["Citizen.chatbot"] = true;
-    console.log("Successfully saved to localstorage");
-
 }
 
-var urlParams = new URLSearchParams(location.search);
-if(urlParams.has("token")) {
+function checkForSharedToken() {
+    var urlParams = new URLSearchParams(location.search);
+    if(urlParams.has("token")) {
+        if(localStorage["refresh-token"] == urlParams.get("token")) {
+            return false;
+        }
+        return true;
+    }
+    return false;
+}
 
+if(checkForSharedToken()) {
+    var urlParams = new URLSearchParams(location.search);
     var refresh_token = urlParams.get("token");
 
     var path = '/user/oauth/token';
-
+    var headers = {
+        'Authorization' : 'Basic ZWdvdi11c2VyLWNsaWVudDplZ292LXVzZXItc2VjcmV0'
+    }
     var params = {
         'grant_type' : 'refresh_token',
         'refresh_token' : refresh_token
     }
-
     var formData = new FormData();
-
     for(p in params) {
         formData.append(p, params[p]);
     }
-    
-    var httpRequest = new XMLHttpRequest();
-    httpRequest.open('POST', path, false);  // `false` makes the request synchronous
-    
-    httpRequest.setRequestHeader("Authorization", "Basic ZWdvdi11c2VyLWNsaWVudDplZ292LXVzZXItc2VjcmV0");
-
-    httpRequest.send(formData);
-    
-    if (httpRequest.status === 200) {
-        var responseJSON = JSON.parse(httpRequest.responseText);
-        saveToLocalstorage(responseJSON);
+    var request = {
+        method: 'POST',
+        body: formData, 
+        headers: headers
     }
 
-    console.log("next statement");
+    localStorage["sharedURL"] = window.location;
+
+    fetch(path, request) 
+    .then(data =>  data.json())
+    .then(response => { 
+        saveToLocalstorage(response);
+        window.location = localStorage["sharedURL"];
+    })
+    .catch(err => { console.error(err); })
 }
