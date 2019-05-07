@@ -51,9 +51,14 @@ if(checkForSharedToken()) {
     localStorage["sharedURL"] = window.location;
 
     fetch(path, request) 
-    .then(data =>  data.json())
-    .then(response => { 
-        saveToLocalstorage(response);
+    .then(response =>  {
+        if(response.status === 200)
+            return response.json()
+        else
+            throw new Error("Error in fetch user with refresh_token");
+    })
+    .then(responseJSON => { 
+        saveToLocalstorage(responseJSON);
         window.location = localStorage["sharedURL"];
     })
     .catch(err => { console.error(err); })
