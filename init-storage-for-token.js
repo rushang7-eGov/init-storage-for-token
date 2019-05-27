@@ -5,11 +5,9 @@ function saveToLocalstorage(responseJSON) {
     var userInfo = responseJSON["UserRequest"];
 
     localStorage["Citizen.token"] = authToken;
-    localStorage["Citizen.refresh-token"] = refresh_token;
     localStorage["Citizen.user-info"] = JSON.stringify(userInfo);
 
     localStorage["token"] = authToken;
-    localStorage["refresh-token"] = refresh_token;
     localStorage["user-info"] = JSON.stringify(userInfo);
 
     localStorage["Citizen.chatbot"] = true;
